@@ -1,12 +1,18 @@
 const express = require('express')
 const morgan = require('morgan')
 const util = require('util')
+const path = require('path')
+
+
 const app = express()
 const cors = require('cors')
 
 app.use(cors())
 app.use(express.json())
 app.use(morgan('tiny'))
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, 'dist')))
 
 morgan.token('body', (request, response) =>{
   return util.inspect(request.body).replace(/\\/g, '')
@@ -95,6 +101,11 @@ app.get('/info', (request, response) => {
   response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`)
 }
 )
+
+// React/Vite SPA fallback
+app.get('/{*splat}', (request, response) => {
+  response.sendFile(path.join(__dirname, 'dist', 'index.html'))
+})
 
 
 
